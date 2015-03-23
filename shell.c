@@ -31,8 +31,6 @@ int parseInput (char* buffer)
         printf("No input, error \n");
         return 0;
     }
-
-    //printf("buffer: %s \n", buffer);
     
     int i = 0;
     char QuoteType;
@@ -63,14 +61,12 @@ int parseInput (char* buffer)
                 tokensize++;
                 ++buffer;
             }
-
             if ( (*buffer) == 0) // reached end of input without matching quote 
             {
                 printf("Quote mismatch, bad input \n");
                 quoteflag = 1;
                 return 0;
             }
-
             else // found matching quote! tokenize it
             {
                 *buffer++ = '\0';
@@ -78,9 +74,7 @@ int parseInput (char* buffer)
                 tokenindex++;
                 tokensize = 0;
             }
-
         }
-
         else
         {
             while ( (*buffer) != 0 &&  !isspace(*buffer) && (*buffer) != '|')
@@ -88,17 +82,14 @@ int parseInput (char* buffer)
                 tokensize++;
                 ++buffer;
             }
-
             if ( (*buffer) == '|')
             {
                 pipeflag = 1;
             }
-
             if (!tokensize) // sitting on a space or pipe with no token before it, move it along
             {
                 ++buffer;
             }
-
             if (tokensize != 0) // dont want spaces or 0's tokenized
             {    
             *buffer++ = '\0';
@@ -106,7 +97,6 @@ int parseInput (char* buffer)
             tokenindex++;
             tokensize = 0;
             }
-
             if (pipeflag)
             {
                 tokens[tokenindex] = "PIPE";
@@ -116,7 +106,6 @@ int parseInput (char* buffer)
         }
         token = buffer;   // move token pointer to new position in buffer
     } 
-
     return 1; 
  }
 
@@ -267,13 +256,10 @@ int runCommands()
 {
     int numCommands = 0;
     commandPTR currentCommand = commands[0];
-
     if(commands[0] == 0) 
     {
         perror("no commands");
     }
-
-
     if(strcmp(currentCommand->args[0], locals[0].name) == 0)             // exit
     {
         locals[0].function( (currentCommand->numargs-1), currentCommand->args );   // first arg is command name so sub 1
@@ -290,7 +276,6 @@ int runCommands()
         {
             numCommands++;                // figure out how many commands we have 
         }
-       
         if( numCommands == 1 ) /* simpleCommand*/
         {
             simpleCommand(currentCommand->numargs, currentCommand->args);
@@ -400,36 +385,31 @@ int main()
 {
     int human = isatty(0);
     while(1)
+    {
+        int i =0;
+        int j = 0;
+        commandPTR currentCommand;
+        char buffer[1024];
+        if(human)
         {
-            int i =0;
-            int j = 0;
-            int valid = 0;
-            commandPTR currentCommand;
-            char buffer[1024];
-
-            if(human)
-            {
-                printf("(ツ) ");          
-                fgets(buffer, 1024, stdin);   /* standard input to get cmd */ 
-            }
-            else                    /* not from the terminal */
-            {
-                fgets(buffer, 1024, stdin);
-            }
-            
-            if(feof(stdin))
-            {
-                exit(0);
-            }
-
-    		parseInput(buffer);   
-            buildCommands();
-
-            if (tokens[0] != NULL && argflag == 0 && quoteflag == 0) // user put in nothing or they put in too many commands
-            {    
-                runCommands();
-            }
-
-            CleanUp();   
+            printf("(ツ) ");          
+            fgets(buffer, 1024, stdin);   
         }
+        else                   // not from terminal
+        {
+            fgets(buffer, 1024, stdin);
+        }
+        if(feof(stdin))
+        {
+            exit(0);
+        }
+		parseInput(buffer);   
+        buildCommands();
+
+        if (tokens[0] != NULL && argflag == 0 && quoteflag == 0) // user put in nothing or they put in too many commands
+        {    
+            runCommands();
+        }
+        CleanUp();   
+    }
 }
